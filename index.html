@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swastika Mishra — Interactive CV</title>
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --a: #22c55e;   /* green */
+      --b: #60a5fa;   /* blue */
+      --c: #a78bfa;   /* purple */
+      --shadow: 0 20px 70px rgba(0,0,0,.35);
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      background:
+        radial-gradient(900px 480px at 10% 10%, rgba(34,197,94,.26), transparent 55%),
+        radial-gradient(800px 520px at 90% 20%, rgba(167,139,250,.26), transparent 55%),
+        radial-gradient(900px 520px at 50% 95%, rgba(96,165,250,.25), transparent 55%),
+        linear-gradient(120deg, var(--bg), #070816);
+    }
+
+    .wrap{ max-width: 1120px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      position: sticky; top: 10px; z-index: 10;
+      padding: 10px; border-radius: 16px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav{ display:flex; gap:10px; flex-wrap:wrap; }
+    .nav a{
+      color: var(--muted); text-decoration:none; font-size: 14px;
+      padding: 8px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+    }
+    .nav a:hover{ color: var(--text); border-color: rgba(255,255,255,.22); }
+
+    .btn{
+      border:0; cursor:pointer; color:white; font-weight:800;
+      padding: 10px 12px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--a), var(--c));
+      box-shadow: 0 12px 35px rgba(167,139,250,.18);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .btn:hover{ filter: brightness(1.05); transform: translateY(-1px); }
+
+    .grid{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+
+    .card{
+      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+    .p{ padding: 18px; }
+
+    .hero{ display:flex; gap:16px; align-items:center; }
+
+    /* Rounded-rectangle photo (premium look) */
+    .avatar{
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;        /* rounded-rectangle */
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.04);
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+
+    h1{ margin:0; font-size: clamp(26px, 3.2vw, 36px); letter-spacing: -0.02em; }
+    .role{ margin-top: 6px; color: var(--muted); }
+
+    .contact{
+      margin-top: 10px;
+      display:flex; flex-wrap:wrap; gap:8px;
+      color: rgba(255,255,255,.86);
+      font-size: 14px;
+    }
+    .contact a{ color: rgba(255,255,255,.9); text-decoration: none; }
+    .contact a:hover{ text-decoration: underline; }
+
+    .chips{ margin-top: 10px; display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{
+      padding: 6px 10px; border-radius: 999px; font-size: 13px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.85);
+    }
+
+    .section-title{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-title:first-child{ border-top: 0; }
+    .section-title span{ color: var(--muted); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+
+    .section-body{ padding: 0 18px 18px; display: none; }
+    .section-body.open{ display:block; }
+
+    .item{
+      padding: 12px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      margin-top: 10px;
+    }
+    .item .h{ font-weight: 850; }
+    .item .m{ color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .item ul{ margin: 10px 0 0 18px; color: rgba(255,255,255,.86); }
+    .item li{ margin: 6px 0; }
+
+    .muted{ color: var(--muted); }
+
+    .filters{ display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px; }
+    .fbtn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.86);
+      padding: 6px 10px; border-radius: 999px; cursor:pointer;
+      font-size: 13px;
+    }
+    .fbtn.active{ border-color: rgba(34,197,94,.55); box-shadow: 0 0 0 3px rgba(34,197,94,.12); }
+
+    /* Prevent ugly page splits in PDF */
+    .pdf-avoid-break{ break-inside: avoid; page-break-inside: avoid; }
+
+    /* PDF mode: applied to cloned node only */
+    .pdfmode{
+      background: #fff !important;
+      color: #111 !important;
+    }
+    .pdfmode .card{
+      background: #fff !important;
+      border-color: #e5e7eb !important;
+      box-shadow: none !important;
+    }
+    .pdfmode .section-title{ border-top: 1px solid #e5e7eb !important; }
+    .pdfmode .section-title span{ color: #374151 !important; }
+    .pdfmode .role, .pdfmode .muted, .pdfmode .m{ color: #4b5563 !important; }
+    .pdfmode .chip, .pdfmode .item{
+      background: #f9fafb !important;
+      border-color: #e5e7eb !important;
+      color: #111 !important;
+    }
+    .pdfmode a{ color: #111 !important; }
+    .pdfmode .avatar{
+      border-color: #e5e7eb !important;
+      box-shadow: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar" id="topbar">
+      <div class="nav">
+        <a href="#about">About</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+        <a href="#training">Training</a>
+        <a href="#skills">Skills</a>
+      </div>
+      <button class="btn" id="downloadBtn">Download PDF</button>
+    </div>
+
+    <div id="cv" class="grid">
+      <!-- MAIN -->
+      <div class="card">
+        <div class="p hero" id="about">
+          <img class="avatar" src="assets/me.jpg" alt="Profile photo">
+          <div>
+            <h1>Swastika Mishra</h1>
+            <div class="role">Aspiring Machine Learning Intern • London, UK • She/Her • Unrestricted RTW UK</div>
+
+            <div class="contact">
+              <span>📧 <a href="mailto:swastikamishra7@gmail.com">swastikamishra7@gmail.com</a></span>
+              <span>•</span>
+              <span>☎️ <a href="tel:+447721989502">+44 7721989502</a></span>
+              <span>•</span>
+              <span>📍 London, UK</span>
+            </div>
+
+            <div class="chips">
+              <span class="chip">Python</span>
+              <span class="chip">Data Analysis</span>
+              <span class="chip">Machine Learning Fundamentals</span>
+              <span class="chip">Data Preprocessing</span>
+              <span class="chip">EDA</span>
+              <span class="chip">Dashboards</span>
+              <span class="chip">Quality Assurance</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" data-toggle="summary">
+          <span>Professional summary</span><span>+</span>
+        </div>
+        <div class="section-body open" id="summary">
+          <p style="margin: 0; color: rgba(255,255,255,.86); line-height: 1.6;">
+            Aspiring Machine Learning Intern with a foundation in computer science, data analysis, and business economics.
+            Experienced in data-driven tasks, working with assessment datasets, and supporting analytical reporting in
+            academic and professional environments. A strong communicator with proven ability to collaborate in
+            team-based, fast-paced settings, translate insights clearly, and approach problem-solving with a hands-on
+            mindset. Brings a background in customer service and business operations, demonstrating adaptability,
+            reliability, and the ability to perform well under pressure. Highly motivated to develop practical machine
+            learning skills and contribute to real-world data and ML projects.
+          </p>
+        </div>
+
+        <div class="section-title" data-toggle="experience" id="experience">
+          <span>Professional experience</span><span>+</span>
+        </div>
+        <div class="section-body open" id="experienceBody">
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Machine Learning Engineer — LinearLabs</div>
+            <div class="m">London, UK • Oct 2025 – Present</div>
+            <ul>
+              <li>Assisted in developing and evaluating machine learning models using Python for real-world datasets.</li>
+              <li>Performed data preprocessing, feature engineering, and exploratory data analysis to support model development.</li>
+              <li>Implemented and tested supervised learning models, improving understanding of model performance and limitations.</li>
+            </ul>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Assessment Associate (Contract) — Pearson</div>
+            <div class="m">London, UK • Aug 2025 – Present</div>
+            <ul>
+              <li>Conducted detailed reviews and evaluations of educational assessments and related data sets to ensure alignment with Pearson’s quality standards and learning outcomes.</li>
+              <li>Analysed key performance metrics and psychometric indicators to assess test reliability, validity, and fairness across diverse learner populations.</li>
+            </ul>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Retail Associate (Part Time) — John Lewis and Partners</div>
+            <div class="m">London, UK • Jul 2025 – Sep 2025</div>
+            <ul>
+              <li>Provided friendly customer service, assisted with purchases, and maintained organised, well-presented store displays.</li>
+            </ul>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Help Desk Assistant / IT Support Receptionist — National Centre for Data &amp; Information Management Training (Government Enterprises)</div>
+            <div class="m">Madhya Pradesh, India • Feb 2022 – May 2025</div>
+            <ul>
+              <li>Provided front-line support by coordinating staff and project-related data to streamline IT help desk reporting and team collaboration.</li>
+              <li>Assisted with scheduling tech support appointments, preparing troubleshooting documentation, and managing internal communication between departments.</li>
+              <li>Handled routine administrative tasks including scanning, digital filing, and organizing IT team meetings and follow-ups.</li>
+            </ul>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Module Content Developer (Freelancing) — University College London</div>
+            <div class="m">London, UK • Jun 2023 – Present</div>
+            <ul>
+              <li>Freelancing to expand technical skills by applying data modelling and machine learning in areas such as materials discovery, public health diagnostics, and disaster risk modelling.</li>
+              <li>Developing educational content and tutorials for university-level teaching, focused on accessible delivery of complex technical topics.</li>
+              <li>Strengthening cross-disciplinary communication and instructional design skills through content creation and academic teamwork.</li>
+            </ul>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Quality Assurance Tester — Khushi Communications Pvt Ltd</div>
+            <div class="m">Delhi, India • Oct 2018 – Jun 2021</div>
+            <ul>
+              <li>Conducted thorough quality checks of e-learning modules, interactive learning tools, and digital training content to ensure accuracy, functionality, and user-friendliness.</li>
+              <li>Collaborated with instructional designers, developers, and graphic designers to resolve issues and deliver error-free, engaging learning solutions to clients.</li>
+              <li>Ensured adherence to project timelines and quality benchmarks by performing regression and functionality testing during product updates.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="section-title" data-toggle="education" id="education">
+          <span>Education</span><span>+</span>
+        </div>
+        <div class="section-body open" id="educationBody">
+          <div class="item pdf-avoid-break">
+            <div class="h">MBA in Business Economics — VBSPU Public University</div>
+            <div class="m">Uttar Pradesh, India • Sep 2021 – Sep 2023 • Graduated with Distinction (77.14%)</div>
+          </div>
+          <div class="item pdf-avoid-break">
+            <div class="h">BTech in Computer Science &amp; Engineering — AKTU Public University</div>
+            <div class="m">Uttar Pradesh, India • Aug 2015 – Jun 2019 • Graduated with Distinction (76.56%)</div>
+          </div>
+        </div>
+
+        <div class="section-title" data-toggle="training" id="training">
+          <span>Trainings &amp; internships</span><span>+</span>
+        </div>
+        <div class="section-body open" id="trainingBody">
+          <div class="item pdf-avoid-break">
+            <div class="h">Human Resource Intern — Skill Council for Mining Sector</div>
+            <div class="m">Delhi, India • Jun 2022 – Aug 2022 (2 months)</div>
+            <ul>
+              <li>Completed Impact Assessment Study of Vocational Education Programs.</li>
+              <li>Prepared minutes and summaries for Governing Board Meetings.</li>
+              <li>Conducted research on the National Education Policy’s impact on skill-based learning.</li>
+            </ul>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Summer Intern (Web Development) — Bharat Sanchar Nigam Limited (BSNL)</div>
+            <div class="m">Uttar Pradesh, India • May 2018 – Jun 2018 (1 month)</div>
+            <ul>
+              <li>Completed technical training focused on telecommunication and basic networking.</li>
+              <li>Designed a static website prototype for internal communications.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE -->
+      <div class="card">
+        <div class="p" id="skills">
+          <div style="color: var(--muted); font-size: 13px; letter-spacing:.12em; text-transform:uppercase;">
+            Additional information
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Languages</div>
+            <div class="m">Hindi (Native), English (Proficient)</div>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Skills</div>
+            <div class="m">
+              Python (data analysis, automation basics), Data Analysis, Machine Learning Fundamentals, Data Preprocessing,
+              Exploratory Data Analysis (EDA), SQL (basic), Excel (advanced formulas, data validation), Data Visualisation,
+              Reporting &amp; Dashboards, Quality Assurance, Process Automation, Documentation, ERP/CRM Exposure,
+              Problem Solving, Stakeholder Communication
+            </div>
+          </div>
+
+          <div class="section-title" data-toggle="filters">
+            <span>Interactive filters (demo)</span><span>+</span>
+          </div>
+          <div class="section-body open" id="filters">
+            <div class="muted">Filter example cards below by tags. Replace with real projects later.</div>
+
+            <div class="filters" style="margin-top:10px;">
+              <button class="fbtn active" data-filter="all">All</button>
+              <button class="fbtn" data-filter="ml">ML</button>
+              <button class="fbtn" data-filter="python">Python</button>
+              <button class="fbtn" data-filter="qa">QA</button>
+            </div>
+
+            <div class="item pdf-avoid-break" data-tags="ml,python">
+              <div class="h">Project: Animal Image Classifier</div>
+              <div class="m">FastAPI + image classification demo (replace with your projects).</div>
+            </div>
+
+            <div class="item pdf-avoid-break" data-tags="qa">
+              <div class="h">Project: QA Testing Portfolio</div>
+              <div class="m">Examples of testing cases and bug reports (replace with your work).</div>
+            </div>
+          </div>
+
+          <div class="item pdf-avoid-break">
+            <div class="h">Next improvements (optional)</div>
+            <div class="m">
+              Add LinkedIn + GitHub links, and replace demo projects with your real projects.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    // Collapsible sections
+    document.querySelectorAll("[data-toggle]").forEach((hdr) => {
+      hdr.addEventListener("click", () => {
+        const id = hdr.getAttribute("data-toggle");
+        const body = document.getElementById(id + "Body") || document.getElementById(id);
+        if (!body) return;
+        body.classList.toggle("open");
+      });
+    });
+
+    // Tag filtering
+    const filterButtons = document.querySelectorAll("[data-filter]");
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tag = btn.getAttribute("data-filter");
+
+        document.querySelectorAll("[data-tags]").forEach((card) => {
+          const tags = (card.getAttribute("data-tags") || "")
+            .split(",").map(t => t.trim().toLowerCase());
+          card.style.display = (tag === "all" || tags.includes(tag)) ? "" : "none";
+        });
+      });
+    });
+
+    // PDF export: clone node and apply pdfmode styles for clean PDF colors
+    document.getElementById("downloadBtn").addEventListener("click", async () => {
+      const cv = document.getElementById("cv");
+      const topbar = document.getElementById("topbar");
+
+      topbar.style.display = "none";
+
+      const clone = cv.cloneNode(true);
+      clone.classList.add("pdfmode");
+
+      const opt = {
+        margin: 8,
+        filename: "Swastika_Mishra_CV.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+      };
+
+      try {
+        await html2pdf().set(opt).from(clone).save();
+      } finally {
+        topbar.style.display = "";
+      }
+    });
+  </script>
+</body>
+</html>
